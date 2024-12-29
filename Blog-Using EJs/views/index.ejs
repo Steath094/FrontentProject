@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport"
+          content="user-scalable=no, initial-scale=1,
+                   maximum-scale=1, minimum-scale=1, 
+                   width=device-width">
+    <!-- CSS file linked -->
+    <link rel="stylesheet" href="styles.css">
+    <title>Blog Website</title>
+</head>
+
+<body>
+    <%- include('partials/nav') %>
+
+    <main>
+        <% if(locals.posts.length!=0) { %>
+            <% console.log(posts)%>
+            <div class="post-grid">
+                <% posts.forEach(post => { %>
+                    <article class="post-card">
+                        <h2><%= post.title %></h2>
+                        <p class="category"><%= post.category %></p>
+                        <p class="description"><%= post.description %></p>
+                        <button type="button" onclick="window.location.href='/post/<%= post.id %>'" class="view-full-btn" >View Full</button>
+                    </article>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div>
+                <%- include('noPosts.ejs') %>
+
+            </div>
+        <% } %>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Steath094</p>
+    </footer>
+    <!-- JavaScript file linked -->
+    <!-- <script src="script.js"></script> -->
+</body>
+
+</html>
