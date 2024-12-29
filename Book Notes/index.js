@@ -1,62 +1,65 @@
-import express from "express"
+import express, { response } from "express"
 import pg  from "pg";
-
+import dotenv from "dotenv"
+import axios from "axios";
+import { Image } from "canvas";
 const app = express();
 const PORT = 3000;
+dotenv.config({
+    path: './.env'
+})
 app.set('view engine', 'ejs');
 app.use(express.static("public"))
 app.use(express.json()) // body-parser is now deprecated as of Express 4.16+
 app.use(express.urlencoded({ extended: true }))
 
-
-//routes
-app.get('/', (req, res) => {
-    res.render('index', {
-        books: [
-          {
-            title: 'All The Light We Cannot See',
-            author: 'Anthony Doerr',
-            votes: '1,988,288',
-            rating: '1',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus morbi eleifend enim, tristique.',
-            image: 'https://pixlr.com/images/generator/how-to-generate.webp'
-          },
-          {
-            title: 'Where The Crawdads Sing',
-            author: 'Delia Owens',
-            votes: '1,988,288',
-            rating: '4',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus morbi eleifend enim, tristique.',
-            image: 'https://cdn.pixabay.com/photo/2024/01/31/18/39/vibrant-8544591_1280.png'
-          },
-          {
-            title: 'Rich People Problems',
-            author: 'Kevin Kwan',
-            votes: '1,988,288',
-            rating: '3',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus morbi eleifend enim, tristique.',
-            image: 'rich-people-problems.jpg'
-          },
-          {
-            title: 'Where The Crawdads Sing',
-            author: 'Delia Owens',
-            votes: '1,988,288',
-            rating: '0',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus morbi eleifend enim, tristique.',
-            image: 'https://cdn.pixabay.com/photo/2024/01/31/18/39/vibrant-8544591_1280.png'
-          },
-          {
-            title: 'Rich People Problems',
-            author: 'Kevin Kwan',
-            votes: '1,988,288',
-            rating: '2',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Purus morbi eleifend enim, tristique.',
-            image: 'rich-people-problems.jpg'
-          }
-
-        ]
-      });
+const db = new pg.Client({
+    user: "postgres",
+    host: "localhost",
+    database: "permalist",
+    password: process.env.DBPASS,
+    port: process.env.DBPORT,
   });
+  try {
+    db.connect();    
+  } catch (error) {
+    console.log(error);
+  }
+//routes
+app.get('/',async (req, res) => {
+    const result =await db.query("SELECT * FROM books");
+    console.log(result.rows);
+    
+    const books = result.rows;
+    res.render('index', {
+        books: books
+      });
+});
+
+app.post('/add',async (req,res)=>{
+    const title = req.body.title;
+    const rating = req.body.rating;
+    const des = req.body.description;
+    const url = `http://openlibrary.org/search.json?q=${title}`
+    const response = await axios.get(url)
+    const author = response.data.docs[0].author_name[0];
+    let imageUrl = `https://covers.openlibrary.org/b/isbn/${response.data.docs[0].isbn[0]}`
+    console.log(imageUrl);
+    const img = new Image();
+    img.src = imageUrl;
+    img.onerror = function () {
+        imageUrl = "";
+    };
+    try {
+        await db.query("INSERT INTO books (title,author,rating,description,image_cover_link) VALUES ($1,$2,$3,$4,$5)",[title,author,rating,des,imageUrl]);
+        res.redirect('/');
+    } catch (error) {
+        console.log("Error Occured While Inserting Data",error);   
+    }
+    
+    
+})
+
 app.listen(PORT,(error)=>{
     if(!error)
         console.log("Server is Successfully Running, and App is listening on port "+ PORT)

@@ -39,6 +39,30 @@
     justify-content: center;
     flex-wrap: wrap;
   }
+  .delete-btn {
+    position: relative;
+    top: 10px;
+    right: 70px;
+    background-color: #EFF3EA;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    /* display: none; */
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+
+
+.delete-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.2);
+}
   
   .book-card {
     background: #FFFDF0;
@@ -49,7 +73,9 @@
     text-align: center;
     padding: 15px;
   }
-  
+  .book-card:hover .delete-btn {
+    display: flex;
+}  
   .book-card img {
     width: 100%;
     height: auto;
@@ -95,7 +121,79 @@
     color: #777;
     line-height: 1.5;
   }
+  /* form  */
+  .container{
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    background: #FFF2C2;
+    padding: 20px 0px;
+  }
+  .form-container {
+    background-color: #FFFDF0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+}
 
+label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus {
+    border-color: #4A90E2;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+input[type="submit"] {
+    background-color: #4A90E2;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #357ABD;
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #777;
+}
   footer{
     text-align: center;
     font-size: xx-large;
