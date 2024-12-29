@@ -1,11 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Notes</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <title>MyBook</title>
 </head>
 <body>
-    Working
+    <header>
+        <nav class="navbar">
+            <div class="logo">My Book Notes</div>
+            <div><input class="search" type="text" placeholder="Search.."></div>
+        </nav>
+    </header>
+    <main>
+        <div class="recommendation">
+            <section class="recommended">
+                <h2>Recommended</h2>
+                <div class="book-grid">
+                  <% books.forEach(book => { %>
+                    <div class="book-card">
+                        <div class="card-img">
+                            <img src="<%= book.image %>" alt="<%= book.title %>">
+                        </div>
+                      <div class="book-info">
+                        <h3><%= book.title %></h3>
+                        <p>By <%= book.author %></p>
+                        <div class="star-rating">
+                            <% for (let i = 1; i <= 5; i++) { %>
+                              <span class="star <%= i <= book.rating ? 'highlighted' : '' %>">&#9733;</span>
+                            <% } %>
+                          </div>
+                        <p class="description"><%= book.description %></p>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <p class="text-center">Copyright &copy; Devpractical.com</p>
+      </footer>
 </body>
 </html>
