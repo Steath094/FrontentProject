@@ -34,7 +34,15 @@
         
         <div class="recommendation">
             <section class="recommended">
-                <h2>Book List</h2>
+                <div class="rc-top">
+                    <h2>Book List</h2>
+                    <div class="sort-container">
+                        <label for="sort-options" class="sort-label">Sort by:</label>
+                        <select id="sort-options" class="sort-select" onchange="sendSortValue()">
+                            <option value="name">Name</option>
+                            <option value="time">Time</option>
+                        </select>
+                    </div></div>
                 <div class="book-grid">
                   <% books.forEach(book => { %>
                     <div class="book-card">
@@ -66,9 +74,11 @@
         <p class="text-center">Copyright &copy; Steath094</p>
       </footer>
       <script>
-        function deleteCard(params) {
-            
-        }
+        function sendSortValue() {
+        const sortValue = document.getElementById('sort-options').value;
+        // Redirect to the route with the selected value as a query parameter
+        window.location.href = `/?sort=${sortValue}`;
+    }
       </script>
 </body>
 </html>

@@ -200,3 +200,50 @@ input[type="submit"]:hover {
     padding: 20px 10px;
     background-color: #D9DFC6;
   }
+
+  /* sorting selector  */
+
+.rc-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 50px;
+}
+.rc-top>h2{
+    text-decoration: underline;
+    font-family: "Rubik Vinyl", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+  .sort-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+}
+
+.sort-label {
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px;
+}
+
+.sort-select {
+    font-size: 16px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.sort-select:hover,
+.sort-select:focus {
+    border-color: #4A90E2;
+    outline: none;
+}

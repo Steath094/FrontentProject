@@ -27,6 +27,8 @@ const db = new pg.Client({
   }
 //routes
 app.get('/',async (req, res) => {
+    console.log(req.body);
+    
     const result =await db.query("SELECT * FROM books");
     console.log(result.rows);
     
@@ -58,6 +60,16 @@ app.post('/add',async (req,res)=>{
     }
     
     
+})
+
+app.post('/delete',async (req,res)=>{
+    const id = req.body.id;
+    try {
+        await db.query("DELETE FROM books WHERE id = $1",[id]);
+        res.redirect('/');      
+    } catch (error) {
+        console.log("Error Occured While Inserting Data",error);   
+    }
 })
 
 app.listen(PORT,(error)=>{
