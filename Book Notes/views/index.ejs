@@ -38,9 +38,12 @@
                     <h2>Book List</h2>
                     <div class="sort-container">
                         <label for="sort-options" class="sort-label">Sort by:</label>
-                        <select id="sort-options" class="sort-select" onchange="sendSortValue()">
-                            <option value="name">Name</option>
-                            <option value="time">Time</option>
+                        <select  id="sort-options" class="sort-select" onchange="sendSortingData()">
+                          <% options.forEach(option => { %>
+                            <option value="<%= option %>" <%= option === defaultSortingType ? 'selected' : '' %> >
+                              <%= option.charAt(0).toUpperCase() + option.slice(1) %>
+                            </option>
+                          <% }); %>
                         </select>
                     </div></div>
                 <div class="book-grid">
@@ -74,11 +77,29 @@
         <p class="text-center">Copyright &copy; Steath094</p>
       </footer>
       <script>
-        function sendSortValue() {
-        const sortValue = document.getElementById('sort-options').value;
-        // Redirect to the route with the selected value as a query parameter
-        window.location.href = `/?sort=${sortValue}`;
-    }
+        async function sendSortingData() {
+          const sortingType = document.getElementById("sort-options").value;
+          const routeURL = '/updateSorted'; // The specific route
+          const data = {
+            sortingType
+          };
+
+          try {
+            const response = await fetch(routeURL, {
+              method: 'POST', // HTTP method
+              headers: {
+                'Content-Type': 'application/json', // Specify JSON data
+              },
+              body: JSON.stringify(data), // Convert data to JSON string
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+          } catch (error) {
+            console.error('Error sending data:', error);
+          }
+        }
       </script>
 </body>
 </html>

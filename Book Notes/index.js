@@ -25,19 +25,33 @@ const db = new pg.Client({
   } catch (error) {
     console.log(error);
   }
+  let sortingType = 'name';
+  let query = "SELECT * FROM books";
 //routes
 app.get('/',async (req, res) => {
-    console.log(req.body);
-    
-    const result =await db.query("SELECT * FROM books");
-    console.log(result.rows);
-    
+    let result =await db.query(query);
     const books = result.rows;
+    const options = ['name', 'time', 'rating'];
     res.render('index', {
-        books: books
+        books: books,
+        options,
+        defaultSortingType: sortingType
       });
 });
-
+app.post('/updateSorted',(req,res)=>{
+    sortingType = req.body.sortingType;
+    query = "SELECT * FROM books"
+    if (sortingType) {
+        if (sortingType === 'name') {
+            query += ' ORDER BY title ASC'; // Sort by title in ascending order
+          } else if (sortingType === 'time') {
+            query += ' ORDER BY id DESC'; // Sort by id (time) in descending order
+          } else if (sortingType === 'rating') {
+            query += ' ORDER BY rating DESC'; // Sort by rating in descending order
+          }
+    }
+    res.redirect('/');
+})
 app.post('/add',async (req,res)=>{
     const title = req.body.title;
     const rating = req.body.rating;
@@ -46,7 +60,7 @@ app.post('/add',async (req,res)=>{
     const response = await axios.get(url)
     const author = response.data.docs[0].author_name[0];
     let imageUrl = `https://covers.openlibrary.org/b/isbn/${response.data.docs[0].isbn[0]}`
-    console.log(imageUrl);
+    // console.log(imageUrl);
     const img = new Image();
     img.src = imageUrl;
     img.onerror = function () {
@@ -71,6 +85,7 @@ app.post('/delete',async (req,res)=>{
         console.log("Error Occured While Inserting Data",error);   
     }
 })
+
 
 app.listen(PORT,(error)=>{
     if(!error)
