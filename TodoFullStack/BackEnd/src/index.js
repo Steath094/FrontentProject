@@ -16,7 +16,7 @@ dotenv.config({
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 //all routes declaration
-app.get("/",async (req,res)=>{
+app.get("/api/",async (req,res)=>{
     try {
         const todo = await Todo.find()
         res
@@ -33,7 +33,7 @@ app.get("/",async (req,res)=>{
     }
 })
 
-app.post("/",async (req,res)=>{
+app.post("/api",async (req,res)=>{
     try {
         const { name } = req.body;
         if (name.trim()=="") {
@@ -53,21 +53,20 @@ app.post("/",async (req,res)=>{
         )  
     }
 })
-app.patch("/:id",async (req,res)=>{
+app.patch("/api/:id",async (req,res)=>{
     try {
         const { id }= req.params
-        const { status=0 } = req.query;
         const { name } = req.body;
         if (name.trim()=="") {
             throw new ApiError(400,"Todo Name is required to Update Todo")
         }
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new ApiError(400,"Todo Id is required to Delete Todo")
+            throw new ApiError(400,"Todo Id is required to update Todo")
         }
-        const todo = await Todo.findByIdAndUpdate(id,
+        const todo = await Todo.findOneAndUpdate(
             {
+                _id: id,
                 name: name,
-                isCompleted: status==1?true:false
             }
         )
         if (!todo) {
@@ -76,7 +75,7 @@ app.patch("/:id",async (req,res)=>{
         res
         .status(200)
         .json(
-            new ApiResponse(200,todo,"Todo Updated Successfully")
+            new ApiResponse(200,[],"Todo Updated Successfully")
         )
     } catch (error) {
         res
@@ -86,14 +85,39 @@ app.patch("/:id",async (req,res)=>{
         )  
     }
 })
-app.delete("/:id",async (req,res)=>{
-    const { id } = req.params;
+app.patch("/api/toggle/:id",async (req,res)=>{
+    try {
+        const { id }= req.params
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new ApiError(400,"Todo Id is required to toggle field of Todo")
+        }
+        const todo = await Todo.findById(id)
+        if (!todo) {
+            throw new ApiError(401,"Unauthorized requrest or Error occured while updating the isCompleted field of todo");
+        }
+        todo.isCompleted = !todo.isCompleted
+        await todo.save();
+        res
+        .status(200)
+        .json(
+            new ApiResponse(200,todo,"Todo Completion Toggled Successfully")
+        )
+    } catch (error) {
+        res
+        .status(500)
+        .json(
+            {"message":"Error While Updating the isCompleted field of Todo: ",error}
+        )  
+    }
+})
+app.delete("/api/:id",async (req,res)=>{
+   
+    const { id } = req.params; 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new ApiError(400,"Todo Id is required to Delete Todo")
     }
-    const todo = await Todo.findByIdAndDelete(id)
-    console.log(todo);
-    if (!todo) {
+    const result = await Todo.deleteOne({_id: id})
+    if (result.deletedCount==0) {
         throw new ApiError(401,"Unauthorized requrest or Error occured while deleteing todo");
     }
     res

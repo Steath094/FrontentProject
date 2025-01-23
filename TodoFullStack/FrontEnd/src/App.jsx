@@ -3,7 +3,7 @@ import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
 import Todo from "./components/Todo";
 import { nanoid } from "nanoid";
-
+import axios from "axios";
 function usePrevious(value) {
   const ref = useRef(null);
   useEffect(() => {
@@ -14,17 +14,20 @@ function usePrevious(value) {
 
 const FILTER_MAP = {
   All: () => true,
-  Active: (task) => !task.completed,
-  Completed: (task) => task.completed,
+  Active: (task) => !task.isCompleted,
+  Completed: (task) => task.isCompleted,
 };
 
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-function App(props) {
-  const [tasks, setTasks] = useState(props.tasks);
+function App() {
+  const [tasks, setTasks] = useState();
+  
   const [filter, setFilter] = useState("All");
 
   function toggleTaskCompleted(id) {
+    axios.patch(`/api/toggle/${id}`)
+    .then((response)=>{
     const updatedTasks = tasks.map((task) => {
       // if this task has the same ID as the edited task
       if (id === task.id) {
@@ -35,34 +38,53 @@ function App(props) {
       return task;
     });
     setTasks(updatedTasks);
+    })
+    .catch((err)=>{
+      console.log("Error while toggling the completion ",err);
+      
+    })
+    
   }
 
   function deleteTask(id) {
-    const remainingTasks = tasks.filter((task) => id !== task.id);
-    setTasks(remainingTasks);
+    axios.delete(`/api/${id}`)
+    .then(()=>{
+      const remainingTasks = tasks.filter((task) => id !== task._id);
+      setTasks(remainingTasks);     
+    })
+    .catch((err)=>{
+      console.log("Error while deleting tasks",err);
+    })
   }
 
   function editTask(id, newName) {
-    const editedTaskList = tasks.map((task) => {
-      // if this task has the same ID as the edited task
-      if (id === task.id) {
-        // Copy the task and update its name
-        return { ...task, name: newName };
-      }
-      // Return the original task if it's not the edited task
-      return task;
-    });
-    setTasks(editedTaskList);
+    axios.patch(`/api/${id}`,{name :newName})
+    .then((response)=>{
+      const editedTaskList = tasks.map((task) => {
+        // if this task has the same ID as the edited task
+        if (id === task._id) {
+          // Copy the task and update its name
+          return { ...task, name: newName };
+        }
+        // Return the original task if it's not the edited task
+        return task;
+      });
+      setTasks(editedTaskList);
+    })
+    .catch((err)=>{
+      console.log("Error While Updating task",err);
+    })
+    
   }
 
   const taskList = tasks
     ?.filter(FILTER_MAP[filter])
     .map((task) => (
       <Todo
-        id={task.id}
+        id={task._id}
         name={task.name}
-        completed={task.completed}
-        key={task.id}
+        completed={task.isCompleted}
+        key={task._id}
         toggleTaskCompleted={toggleTaskCompleted}
         deleteTask={deleteTask}
         editTask={editTask}
@@ -79,21 +101,36 @@ function App(props) {
   ));
 
   function addTask(name) {
-    const newTask = { id: "todo-" + nanoid(), name: name, completed: false };
-    setTasks([...tasks, newTask]);
+    axios.post("/api",{name})
+    .then((response)=>{
+      const newtask = response.data.data;
+      setTasks([...tasks, newtask]);
+    })
+    .catch((err)=>{
+      console.log("Error While adding Todo", err);
+      
+    })
+    
   }
-
-  const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
-  const headingText = `${taskList.length} ${tasksNoun} remaining`;
+ 
+  const tasksNoun = taskList?.length > 1 ? "tasks" : "task";
+  const headingText = `${taskList?.length} ${tasksNoun} remaining`;
 
   const listHeadingRef = useRef(null);
-  const prevTaskLength = usePrevious(tasks.length);
-
-  useEffect(() => {
-    if (tasks.length < prevTaskLength) {
-      listHeadingRef.current.focus();
-    }
-  }, [tasks.length, prevTaskLength]);
+  useEffect(()=>{
+    axios.get("/api/")
+    .then((response)=>{
+      setTasks(response.data.data);
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+  },[tasks?.length, taskList?.length])
+  // useEffect(() => {
+  //   if (tasks.length < prevTaskLength) {
+  //     listHeadingRef.current.focus();
+  //   }
+  // }, [tasks.length, prevTaskLength]);
 
   return (
     <div className="todoapp stack-large">

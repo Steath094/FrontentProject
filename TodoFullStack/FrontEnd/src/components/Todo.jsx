@@ -10,7 +10,7 @@ function usePrevious(value) {
 
 function Todo(props) {
   const [isEditing, setEditing] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [newName, setNewName] = useState(props.name);
 
   const editFieldRef = useRef(null);
   const editButtonRef = useRef(null);
@@ -30,12 +30,11 @@ function Todo(props) {
     setNewName("");
     setEditing(false);
   }
-
   const editingTemplate = (
     <form className="stack-small" onSubmit={handleSubmit}>
       <div className="form-group">
         <label className="todo-label" htmlFor={props.id}>
-          New name for {props.name}
+          Update Taks Name
         </label>
         <input
           id={props.id}
